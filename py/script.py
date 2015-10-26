@@ -10,7 +10,7 @@ from goose import Goose
 g = Goose()
 
 alchemyapi = AlchemyAPI() 
-db = connection.test
+db = connection.thesis
 segue = db.segue
 
 
@@ -74,9 +74,17 @@ while (i < 80):
 	keywords = []
 	if response['status'] == 'OK':
 		for keyword in response['keywords']:
-			keywords.append(keyword['text'].encode('utf-8'))
+			# splitting keywords into individual words for easier matching
+			if ' ' in keyword['text'].encode('utf-8'):
+				splitkey = keyword['text'].encode('utf-8').split()
+				for k in splitkey:
+					# print(k)
+					keywords.append(k)
+			else:
+				# print(keyword['text'].encode('utf-8'))
+				keywords.append(keyword['text'].encode('utf-8'))
 	else:
-		print('Error in keyword extaction call: ', response['statusInfo'])
+		print('Error in keyword extraction call: ', response['statusInfo'])
 
 	#getting concepts
 	response = alchemyapi.concepts('text', text)
@@ -87,16 +95,15 @@ while (i < 80):
 	else:
 	    print('Error in concept tagging call: ', response['statusInfo'])
 
-	articles = { source: [] }
-	articles[source].append({
+	articles = {
 		'source': source,
 		'url': url,
 		'title': title,
 		'description': description,
 		'keywords': keywords
-	})
+	}
 
 	segue.insert_one(articles)
-	# print(articles)
+	print(keywords)
 
 	i = i + 1

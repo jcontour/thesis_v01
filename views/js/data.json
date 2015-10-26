@@ -1,0 +1,15 @@
+[
+  {
+  "name": "Top",
+  "parent": "null",
+  "children": [
+    { "name": "A", "parent": "Top",
+      "children": [
+        { "name": "1", "parent": "A" }
+    ]},
+    { "name": "B", "parent": "Top", 
+    "children": [
+      { "name": "2", "parent": "B" }
+    ]}
+  ]}
+]
