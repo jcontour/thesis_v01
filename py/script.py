@@ -12,6 +12,7 @@ g = Goose()
 alchemyapi = AlchemyAPI() 
 db = connection.thesis
 segue = db.segue
+trend_db = db.trend
 
 
 ##		INIT SOURCES
@@ -36,11 +37,26 @@ cnn_paper = newspaper.build('http://cnn.com', memoize_articles=False)
 
 # sources = [newYorker, atlantic, npr, natGeo, time, wired, motherJones, vox, nyMag, nyTimes, wsj, slate, cnn, forbes, bbc, huffPost, nbc, medium]
 
-##		CONTENT EXTRACTION
-# for source in sources:
-# 	for article in source.articles:
-# 		print("source: " + article.url)
+#		CONTENT EXTRACTION FOR TRENDS
+trend_text = 'The San Francisco Giants will be playing the Texas Rangers in the 2010 World Series.';
+trend_tags = []
 
+trend = alchemyapi.concepts('text', trend_text)
+if trend['status'] == 'OK':
+	for concept in trend['concepts']:
+		if ' ' in concept['text'].encode('utf-8'):
+			split = concept['text'].encode('utf-8').split()
+			for c in split:
+				trend_tags.append(c)
+		else:
+			trend_tags.append(trend['text'].encode('utf-8'))
+else:
+	print('Error in concept tagging call: ', trend['statusInfo'])
+
+trend_db.insert_one({'keywords': trend_tags})
+print(trend_tags)
+
+#		CONTENT EXTRACTION FOR ARTICLES
 article_list = cnn_paper.articles
 i = 0
 
