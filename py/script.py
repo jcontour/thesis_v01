@@ -106,7 +106,16 @@ while (i < 80):
 	response = alchemyapi.concepts('text', text)
 	if response['status'] == 'OK':
 	    for concept in response['concepts']:
-	    	keywords.append(concept['text'])
+	    	# keywords.append(concept['text'])
+
+	    	if ' ' in concept['text'].encode('utf-8'):
+				splitconcept = concept['text'].encode('utf-8').split()
+				for c in splitconcept:
+					# print(k)
+					keywords.append(c)
+			else:
+				# print(keyword['text'].encode('utf-8'))
+				keywords.append(concept['text'].encode('utf-8'))
 
 	else:
 	    print('Error in concept tagging call: ', response['statusInfo'])
