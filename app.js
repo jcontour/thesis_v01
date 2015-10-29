@@ -13,41 +13,87 @@ app.use(express.static(__dirname + '/views'));
 
 var mongoclient = new MongoClient(new Server("localhost", 27017));
 
-var db_thesis = mongoclient.db('thesis');
-var db_tag_matching = mongoclient.db('tag_matching');
+// var data_cache = {
+//     time: new Date(), 
+//     data: {}
+// };
 
-app.get('/', function(req, res){
+var db = mongoclient.db('thesis');
+
+function getDataArray(data_obj, callback){
 
     //data array creation
     var query = {}
     var projection = {title: 1, keywords: 1}
-    var data_cursor = db_thesis.collection('segue').find(query, projection);
-    var data_array = [];
+    var numDocs = 0; 
 
-    data_cursor.each(function(err, doc) {
+    db.collection('segue').find(query, projection).each(function(err, doc) {
         if (err) throw err;
         if (doc == null){
-            for (var i = 0; i < data_array.length; i++){
-                console.log(i + " " + data_array[i]);
-            }
-            db_thesis.close()
+            callback(data_obj, numDocs);
+        } else {
+            data_obj[numDocs] = {'keywords': JSON.stringify(doc.keywords), 'id': JSON.stringify(doc._id)};
+            numDocs ++;
         }
-        data_array.push(JSON.stringify(doc));
     });
-
-    //trend array creation
-    var trend_cursor = db_thesis.collection('trend').findOne({}, {keywords: 1, _id: 0});
-    var trend_array = []
-    trend_cursor.each(function(err, doc){
+}
+function getTrendArray(trend_array, callback){
+    // //trend array creation
+    db.collection('trend').findOne({}, {keywords: 1, _id: 0}, function(err, doc){
         if (err) throw err;
-        if (doc == null){
-            for (var i = 0; i < trend_array.length; i++){
-                console.log(i + " " + trend_array[i]);
-            }
-            db_thesis.close();
-        } 
-        trend_array.push(JSON.stringify(doc));
+        trend_array = doc.keywords;
+        callback(trend_array);
     })
+
+}
+
+
+function compareData(filled_data_obj, numDocs, filled_trend_array, callback){
+    console.log("comparing data");
+
+
+    var comparedData = {};
+
+    for (var i = 0; i < filled_trend_array.length; i++){
+        //filling object with key:emptyArray pairs for each keyword
+        comparedData[filled_trend_array[i]] = [];
+
+        for(var j = 0; j < numDocs; j++){
+            for(var k = 0; k < filled_data_obj[j].keywords.length; k++){
+                // console.log(filled_data_obj[j].keywords[k]);
+                if (filled_trend_array[i] == filled_data_obj[j].keywords[k]){
+                    console.log("match found!");
+                    comparedData[filled_trend_array.keywords[i]].push(filled_data_obj[j]._id);
+                } else {
+                    console.log("no match for: " + comparedData[filled_trend_array.keywords[i]]);
+                }
+            }
+        }
+    }
+
+    callback(comparedData);
+}
+
+function getData(data_obj, trend_array, callback){
+
+    getDataArray(data_obj, function(filled_data_obj, numDocs){
+        getTrendArray(trend_array, function(filled_trend_array){
+            compareData(filled_data_obj, numDocs, filled_trend_array, function(comparedDataObj){
+                callback(comparedDataObj);
+            })
+        })
+    })
+}
+
+app.get('/data', function(req, res){
+    var data_obj = {};
+    var trend_array;
+    getData(data_obj, trend_array, function(comparedDataObj){
+        res.json(comparedDataObj);
+    })
+})
+
+app.get('/', function(req, res){
 
     //render view
     res.render('viz1')
