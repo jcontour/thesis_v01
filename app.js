@@ -32,7 +32,7 @@ function getDataArray(data_obj, callback){
         if (doc == null){
             callback(data_obj, numDocs);
         } else {
-            data_obj[numDocs] = {'keywords': JSON.stringify(doc.keywords), 'id': JSON.stringify(doc._id)};
+            data_obj[numDocs] = {'keywords': doc.keywords, 'id': doc._id};
             numDocs ++;
         }
     });
@@ -51,7 +51,7 @@ function getTrendArray(trend_array, callback){
 function compareData(filled_data_obj, numDocs, filled_trend_array, callback){
     console.log("comparing data");
 
-
+    // console.log(filled_data_obj);
     var comparedData = {};
 
     for (var i = 0; i < filled_trend_array.length; i++){
@@ -59,13 +59,17 @@ function compareData(filled_data_obj, numDocs, filled_trend_array, callback){
         comparedData[filled_trend_array[i]] = [];
 
         for(var j = 0; j < numDocs; j++){
+
+            console.log(typeof filled_data_obj[j])
             for(var k = 0; k < filled_data_obj[j].keywords.length; k++){
                 // console.log(filled_data_obj[j].keywords[k]);
+                console.log(filled_trend_array[i], filled_data_obj[j].keywords[k]);
                 if (filled_trend_array[i] == filled_data_obj[j].keywords[k]){
                     console.log("match found!");
-                    comparedData[filled_trend_array.keywords[i]].push(filled_data_obj[j]._id);
+                    if ()
+                    comparedData[filled_trend_array[i]].push(filled_data_obj[j].id);
                 } else {
-                    console.log("no match for: " + comparedData[filled_trend_array.keywords[i]]);
+                    console.log("no match for: " + filled_trend_array[i]);
                 }
             }
         }
