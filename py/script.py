@@ -44,6 +44,9 @@ trend_article = Article(trend_url)
 trend_article.download()
 trend_article.parse()
 
+trend_title = trend_article.title
+
+
 trend_text = trend_article.text
 
 trend_tags = []
@@ -60,7 +63,7 @@ if trend['status'] == 'OK':
 else:
 	print('Error in concept tagging call: ', trend['statusInfo'])
 
-trend_db.insert_one({'keywords': trend_tags})
+trend_db.insert_one({'keywords': trend_tags, 'title': trend_title})
 print(trend_tags)
 
 #		CONTENT EXTRACTION FOR ARTICLES

@@ -54,29 +54,27 @@ function compareData(filled_child_obj, numDocs, filled_parent_array, callback){
     console.log("comparing data");
 
     // console.log(filled_child_obj);
-    var comparedData = {};
+    var matching_ids = [];
 
+    //for number of trending keywords
     for (var i = 0; i < filled_parent_array.length; i++){
-        //filling object with key:emptyArray pairs for each keyword
-        comparedData[filled_parent_array[i]] = [];
-
+        //in all child articles
         for(var j = 0; j < numDocs; j++){
-
-            // console.log(typeof filled_child_obj[j])
+            //for length of child keyword array
             for(var k = 0; k < filled_child_obj[j].keywords.length; k++){
-                // console.log(filled_child_obj[j].keywords[k]);
-                //console.log(filled_parent_array[i], filled_child_obj[j].keywords[k]);
+
+                //if keyword matches trending keyword
                 if (filled_parent_array[i] == filled_child_obj[j].keywords[k]){
-                    // console.log("match found!");
-                    comparedData[filled_parent_array[i]].push(filled_child_obj[j].id);
-                } else {
-                    // console.log("no match for: " + filled_parent_array[i]);
+                    console.log("match found!");
+                    if (matching_ids.indexOf(filled_child_obj[j].id) == -1){
+                        matching_ids.push(filled_child_obj[j].id);
+                    }
                 }
             }
         }
     }
-
-    callback(filled_parent_array, comparedData);
+    console.log(matching_ids)
+    callback(filled_parent_array, matching_ids);
 }
 
 function getChild(child_obj, parent_array, callback){
@@ -84,8 +82,8 @@ function getChild(child_obj, parent_array, callback){
     console.log("assembling data");
     getChildArray(child_obj, function(filled_child_obj, numDocs){
         getParentArray(parent_array, function(filled_parent_array){
-            compareData(filled_child_obj, numDocs, filled_parent_array, function(filled_parent_array, comparedDataObj){
-                callback(filled_parent_array, comparedDataObj);
+            compareData(filled_child_obj, numDocs, filled_parent_array, function(filled_parent_array, matching_ids){
+                callback(filled_parent_array, matching_ids);
             })
         })
     })
@@ -96,30 +94,19 @@ function getJSON(callback){
     var child_obj = {};
     var parent_array;
 
-    getChild(child_obj, parent_array, function(filled_parent_array, comparedDataObj){
+    getChild(child_obj, parent_array, function(filled_parent_array, matching_ids){
         
         //do the stuff to make this obj into good json for d3
-        //comparedDataObj > response_json
+        //matching_ids > response_json
         console.log("getting json");
 
         json_obj = {
                 'name': filled_parent_array[0],
                 'parent': 'null',
-                'children': []
+                'children': matching_ids
         }
 
-        for (var i = 0; i < filled_parent_array.length; i++){
-            //loop through keys in compared obj
-            if (comparedDataObj[filled_parent_array[i]].length > 0){
-                //check if there's id's in them
-                for (var j = 0; j < comparedDataObj[filled_parent_array[i]].length; j++){
-                    //push id's into json obj's child array
-                    json_obj['children'].push({'name': comparedDataObj[filled_parent_array[i]][j], 'parent': filled_parent_array[0]})
-                }
-            }
-        }
-
-        console.log(json_obj);
+        // console.log(json_obj);
 
         callback(json_obj)
     })
@@ -129,7 +116,7 @@ app.get('/data', function(req, res){
     
     //run function to get json for d3
     getJSON(function(response_json){
-        res.write(JSON.stringify(response_json));
+        res.json(response_json);
     })
 })
 
