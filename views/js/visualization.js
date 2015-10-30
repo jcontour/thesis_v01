@@ -18,7 +18,7 @@ var svg = d3.select("body").append("svg")
 
 // load the external data
 // d3.json("/data", function(error, treeData) {
-d3.json("js/data.json", function(error, treeData) {
+d3.json('/data', function(error, treeData) {
   root = treeData[0];
   update(root);
 });

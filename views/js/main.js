@@ -10,7 +10,6 @@ app.main = (function() {
 
 	return {
 		init: init,
-		parseData : parseData
 	};
 
 })();
