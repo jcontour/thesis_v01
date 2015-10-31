@@ -69,7 +69,6 @@ function compareData(filled_child_obj, numDocs, filled_parent_array, callback){
 
                 //if keyword matches trending keyword
                 if (filled_parent_array[i] == filled_child_obj[j].keywords[k]){
-                    console.log("match found!");
                     if (matching_ids.indexOf(filled_child_obj[j].id) == -1){
                         matching_ids.push(filled_child_obj[j].id);
                     }
@@ -77,7 +76,7 @@ function compareData(filled_child_obj, numDocs, filled_parent_array, callback){
             }
         }
     }
-    console.log(matching_ids)
+    // console.log(matching_ids)
     callback(filled_parent_array, matching_ids);
 }
 
@@ -118,18 +117,36 @@ function getJSON(callback){
 
 function getDoc(id, callback){
     var myid = new mongo.ObjectID(id);
-    console.log(myid);
 
     db.collection('segue1').findOne({'_id': myid}, function(err, doc){
         if (err) throw err;
-        // console.log(doc.title, doc.description);
+        // console.log("getting doc: " + doc);
         callback(doc);
     })
-
 }
+
+function findMatches(parent_keywords, callback){
+    var child1 = {}
+
+    getChildArray(child1, function(filled_child_obj, numDocs){
+        compareData(filled_child_obj, numDocs, parent_keywords, function(filled_parent_array, matching_ids){
+                // console.log(matching_ids);
+                callback(matching_ids);
+            });
+    });
+}
+
+app.post('/childData', function(req, res){
+    getDoc(req.body['docid'], function(doc){
+        findMatches(doc.keywords, function(matching_ids){
+            res.json(matching_ids);
+        })
+    });
+});
 
 app.post('/article', function(req, res){
     getDoc(req.body['docid'], function(doc){
+        // console.log(doc)
         res.json(doc);
     })
 })

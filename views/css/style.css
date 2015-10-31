@@ -9,6 +9,7 @@ body{
 	height: 100vh;
 	padding: 10px;
 	float: left;
+	overflow: scroll;
 }
 
 #container {
@@ -17,10 +18,20 @@ body{
 }
 
 .articleBin {
-	width: 180px;
+	width: 50px;
 	height: 95%;
 	margin: 2px;
 	float: left;
+}
+
+#trend{
+	width: 150px;
+}
+
+#child2 {
+	width: 160px;
+	position: relative;
+	left: 10px;
 }
 
 .articleBin p {
@@ -28,11 +39,16 @@ body{
 }
 
 .article {
-	width: 100px;
-	height: 20px;
+	width: 5px;
+	height: 2px;
 	margin: 4px;
 	padding: 20px;
-	outline: 1px solid black;
+	background-color: black;
+	float: left;
+}
+
+.article:hover{
+	background-color: yellow;
 }
 
 #article {

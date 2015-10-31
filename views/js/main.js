@@ -5,12 +5,11 @@ var app = app || {};
 app.main = (function() {
 
 	var getNewChildren = function(id, callback){
-		// $.post('/childData', {
-		// 	'docid': id
-		// }, function(res){
-		// 	//WORKING ON THIS ONE RIGHT NOW
-		// 	callback(json);
-		// })
+		$.post('/childData', {
+			'docid': id
+		}, function(res){
+			callback(res);
+		})
 	}
 
 	var pushArticleInfo = function(title, description){
@@ -28,22 +27,50 @@ app.main = (function() {
 
 	}
 
+	var createChildBin = function(parent_id, id_array){
+		id_array.splice(id_array.indexOf(parent_id),1);
+
+		var articleBin = $('<div>');
+		articleBin.addClass("articleBin").attr("id", "child2");
+
+		for (var i = 0; i < id_array.length; i ++){
+			var article = $('<div>');
+			article.addClass("article")
+					.attr("id", id_array[i])
+			articleBin.append(article);
+		}
+		$('#container').append(articleBin);
+
+		listen();
+	}
+
 	var listen = function(){
-		$('.article').click(function(){
-			getArticleInfo(this.id, function(title, description){
+		$('#child1 > .article').click(function(){
+			var articleID = this.id;
+
+			getArticleInfo(articleID, function(title, description){
 				pushArticleInfo(title, description);
-				getNewChildren(this.id, function(json){
-					// make new articleBin with articles for children of this one
+				
+				//create new article Bin with matching children articles for this one
+				getNewChildren(articleID, function(matching_ids){
+					if ($('#child2').length > 0){
+						$('#child2').remove();
+					}
+					createChildBin(articleID, matching_ids);
 				})
+			})
+		});
+
+		$('#child2 > .article').click(function(){
+			var articleID = this.id;
+
+			getArticleInfo(articleID, function(title, description){
+				pushArticleInfo(title, description);
+				
 			})
 		});
 	};
 
-	var createArticleBin = function(id){
-		var articleBin = $('<div>');
-		articleBin.addClass("articleBin").attr("id", id);
-		return articleBin;
-	}
 
 	var makeInitialElements = function(json){
 
@@ -60,7 +87,6 @@ app.main = (function() {
 		for (var i = 0; i < json.children.length; i ++){
 			var article = $('<div>');
 			article.addClass("article")
-					.html('article')
 					.attr("id", json.children[i])
 			articleBin.append(article);
 		}
