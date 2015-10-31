@@ -5,12 +5,12 @@ var app = app || {};
 app.main = (function() {
 
 	var getNewChildren = function(id, callback){
-		$.post('/childData', {
-			'docid': id
-		}, function(res){
-			//WORKING ON THIS ONE RIGHT NOW
-			callback(json);
-		})
+		// $.post('/childData', {
+		// 	'docid': id
+		// }, function(res){
+		// 	//WORKING ON THIS ONE RIGHT NOW
+		// 	callback(json);
+		// })
 	}
 
 	var pushArticleInfo = function(title, description){
@@ -23,6 +23,7 @@ app.main = (function() {
 			'docid': myId
 		}, function(res){
 			callback(res.title, res.description)
+
 		});
 
 	}
@@ -32,7 +33,7 @@ app.main = (function() {
 			getArticleInfo(this.id, function(title, description){
 				pushArticleInfo(title, description);
 				getNewChildren(this.id, function(json){
-					//make new articleBin with articles for children of this one
+					// make new articleBin with articles for children of this one
 				})
 			})
 		});

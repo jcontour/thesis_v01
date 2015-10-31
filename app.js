@@ -2,9 +2,13 @@ var express = require('express'),
     app = express(),
     fs = require('fs'),
     cons = require('consolidate'),
+    mongo = require('mongodb'),
+    bodyParser = require('body-parser'),
     MongoClient = require('mongodb').MongoClient,
     Server = require('mongodb').Server;
     
+app.use(bodyParser.urlencoded({ extended: false }));// parse application/x-www-form-urlencoded
+app.use(bodyParser.json()); 
 
 app.engine('html', cons.swig);
 app.set('view engine', 'html');
@@ -111,6 +115,24 @@ function getJSON(callback){
         callback(json_obj)
     })
 }
+
+function getDoc(id, callback){
+    var myid = new mongo.ObjectID(id);
+    console.log(myid);
+
+    db.collection('segue1').findOne({'_id': myid}, function(err, doc){
+        if (err) throw err;
+        // console.log(doc.title, doc.description);
+        callback(doc);
+    })
+
+}
+
+app.post('/article', function(req, res){
+    getDoc(req.body['docid'], function(doc){
+        res.json(doc);
+    })
+})
 
 app.get('/data', function(req, res){
     
