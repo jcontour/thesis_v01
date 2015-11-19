@@ -52,8 +52,8 @@ body{
 }
 
 #article {
-	width: 47vw;
-	float: left;
+	width: 45vw;
+	float: right;
 	padding: 1vw;
 	font-size: 2em;
 }

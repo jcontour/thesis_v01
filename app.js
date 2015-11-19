@@ -1,6 +1,5 @@
 var express = require('express'), 
     app = express(),
-    fs = require('fs'),
     cons = require('consolidate'),
     mongo = require('mongodb'),
     bodyParser = require('body-parser'),
@@ -152,7 +151,7 @@ app.post('/article', function(req, res){
 })
 
 app.get('/data', function(req, res){
-    
+
     //run function to get json for d3
     getJSON(function(response_json){
         res.json(response_json);
